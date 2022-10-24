@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:note_bus/design/color_palette.dart';
 import 'package:note_bus/widgets/drawboard_widget.dart';
 import 'package:note_bus/main.dart';
 import 'package:note_bus/models/enums.dart';
@@ -57,18 +58,16 @@ class _ControlWidgetState extends State<ControlWidget> {
                   child: colorContainer(currentTheme.highlightColor)),
               ControlWidgetButton(
                   onPressed: (() {
-                    currentTheme.currentPenColor =
-                        Color.fromARGB(255, 243, 80, 80);
+                    currentTheme.currentPenColor = redColorPalette;
                     setEditMode(EditMode.pen);
                   }),
-                  child: colorContainer(Color.fromARGB(255, 243, 80, 80))),
+                  child: colorContainer(redColorPalette)),
               ControlWidgetButton(
                   onPressed: (() {
-                    currentTheme.currentPenColor =
-                        Color.fromARGB(255, 43, 102, 151);
+                    currentTheme.currentPenColor = blueColorPalette;
                     setEditMode(EditMode.pen);
                   }),
-                  child: colorContainer(Color.fromARGB(255, 43, 102, 151))),
+                  child: colorContainer(blueColorPalette)),
             ],
           ),
         ),

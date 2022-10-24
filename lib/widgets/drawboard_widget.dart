@@ -1,13 +1,14 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:note_bus/freesketch.dart';
+import 'package:note_bus/tools/freesketch.dart';
 import 'package:note_bus/main.dart';
 import 'package:note_bus/models/enums.dart';
-import 'package:note_bus/save_project.dart';
+import 'package:note_bus/tools/save_project.dart';
 import 'package:note_bus/widgets/control_widget.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
+
+import '../models/hand_sketch.dart';
 
 class Drawboard extends StatefulWidget {
   const Drawboard({super.key});

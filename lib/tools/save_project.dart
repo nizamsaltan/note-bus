@@ -11,9 +11,10 @@ import 'package:event/event.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/rendering.dart';
-import 'package:note_bus/freesketch.dart';
 import 'package:note_bus/tools/platform_detector.dart';
 import 'package:note_bus/widgets/drawboard_widget.dart';
+
+import '../models/hand_sketch.dart';
 
 class ProjectSaver {
   static ProjectSaver get instance => ProjectSaver();

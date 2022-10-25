@@ -41,6 +41,7 @@ dependencies:
   file_saver: ^0.1.1
   file_picker: ^5.2.2
   event: ^2.1.2
+  vector_math: ^2.1.2
 
 dev_dependencies:
   flutter_test:

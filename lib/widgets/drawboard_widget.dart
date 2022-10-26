@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/gestures.dart';
@@ -6,7 +7,9 @@ import 'package:note_bus/tools/freesketch.dart';
 import 'package:note_bus/main.dart';
 import 'package:note_bus/models/enums.dart';
 import 'package:note_bus/tools/save_project.dart';
+import 'package:note_bus/utils/app_theme.dart';
 import 'package:note_bus/widgets/control_widget.dart';
+import 'package:note_bus/widgets/top_bar.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
 import 'package:vector_math/vector_math_64.dart' as vector;
 
@@ -26,74 +29,53 @@ double drawboardScale = 1;
 final GlobalKey globalWidgetKey = GlobalKey();
 
 class _DrawboardState extends State<Drawboard> {
-  late HandSketch currentShape;
+  // Variables
+  late HandSketch currentSketch;
   bool isControllKeyPressing = false;
-  double touchPressure = 5; // Change it later on
+  bool showDrawboardScaleText = false;
+
+  // Settings
+  double touchPressure = 4; // Change it later on
+  double ereaseSize = 15;
+  double minDrawboardScale = .3;
+  double maxDrawboardScale = 2;
 
   // ** Callbacks **
 
   void onPanStart(DragStartDetails details) {
+    List<Point> x = [];
     switch (currentMode) {
       case EditMode.pen:
-        List<Point> x = [
-          Point(
-              details.globalPosition.dx / drawboardScale - drawboardOffset.dx,
-              details.globalPosition.dy / drawboardScale - drawboardOffset.dy,
-              2),
-        ];
-        currentShape =
-            HandSketch(x, currentTheme.currentPenColor, touchPressure);
-        drawboardSketches.add(currentShape);
+        x.add(Point(
+            details.globalPosition.dx / drawboardScale - drawboardOffset.dx,
+            details.globalPosition.dy / drawboardScale - drawboardOffset.dy,
+            2));
         break;
       case EditMode.erase:
         break;
       default:
-        List<Point> x = [];
-        currentShape =
-            HandSketch(x, currentTheme.currentPenColor, touchPressure);
-        drawboardSketches.add(currentShape);
+    }
+
+    if (currentMode != EditMode.erase) {
+      currentSketch =
+          HandSketch(x, currentTheme.currentPenColor, touchPressure);
+      drawboardSketches.add(currentSketch);
     }
   }
 
   void onPanUpdate(DragUpdateDetails details) {
+    double dx = details.globalPosition.dx;
+    double dy = details.globalPosition.dy;
     switch (currentMode) {
       case EditMode.pen:
-        setState(() {
-          currentShape.points.add(
-            Point(
-                details.globalPosition.dx / drawboardScale - drawboardOffset.dx,
-                details.globalPosition.dy / drawboardScale - drawboardOffset.dy,
-                2),
-          );
-        });
+        addPointToCurrentSketch(dx, dy);
         break;
       case EditMode.erase:
-        for (var i = 0; i < drawboardSketches.length; i++) {
-          Path path = setPath(drawboardSketches[i].points, 15)!;
-          if (path.contains(Offset(
-              details.globalPosition.dx - drawboardOffset.dx,
-              details.globalPosition.dy - drawboardOffset.dy))) {
-            setState(() {
-              drawboardSketches[i].color = Colors.black26;
-              drawboardSketches[i].delete = true;
-            });
-          }
-        }
+        ereasePointSketch(dx, dy);
         break;
       default:
-        setState(
-          () {
-            currentShape.points.add(
-              Point(details.globalPosition.dx - drawboardOffset.dx,
-                  details.globalPosition.dy - drawboardOffset.dy),
-            );
-          },
-        );
+        addPointToCurrentSketch(dx, dy);
     }
-  }
-
-  void onPanCancel() {
-    //detectDeletedShapes();
   }
 
   void onPanEnd(DragEndDetails details) {
@@ -110,6 +92,45 @@ class _DrawboardState extends State<Drawboard> {
         }
       }
     });
+  }
+
+  void addPointToCurrentSketch(double dx, double dy) {
+    Offset touchOffset = Offset(dx / drawboardScale - drawboardOffset.dx,
+        dy / drawboardScale - drawboardOffset.dy);
+    setState(() {
+      currentSketch.points
+          .add(Point(touchOffset.dx, touchOffset.dy, touchPressure));
+    });
+  }
+
+  void ereasePointSketch(double dx, double dy) {
+    Offset touchOffset = Offset(dx / drawboardScale - drawboardOffset.dx,
+        dy / drawboardScale - drawboardOffset.dy);
+    for (var i = 0; i < drawboardSketches.length; i++) {
+      Path path = setPath(drawboardSketches[i].points, 15)!;
+      if (path.contains(touchOffset)) {
+        setState(() {
+          drawboardSketches[i].color = Colors.black26;
+          drawboardSketches[i].delete = true;
+        });
+      }
+    }
+  }
+
+  void scaleDrawboard(double amount) {
+    var targetScale = drawboardScale + amount;
+    targetScale = targetScale.clamp(minDrawboardScale, maxDrawboardScale);
+
+    setState(() {
+      drawboardScale = targetScale;
+      showDrawboardScaleText = true;
+    });
+
+    Timer(
+        const Duration(seconds: 5),
+        () => setState(() {
+              showDrawboardScaleText = false;
+            }));
   }
 
   // ** Build **
@@ -136,13 +157,9 @@ class _DrawboardState extends State<Drawboard> {
       onPointerSignal: (event) {
         if (event is PointerScrollEvent && isControllKeyPressing) {
           if (event.scrollDelta.dy > 0) {
-            setState(() {
-              drawboardScale += .1;
-            });
+            scaleDrawboard(-.1);
           } else if (event.scrollDelta.dy < 0) {
-            setState(() {
-              drawboardScale += -.1;
-            });
+            scaleDrawboard(.1);
           }
         }
       },
@@ -152,7 +169,7 @@ class _DrawboardState extends State<Drawboard> {
       onPointerMove: (event) {
         if (event.buttons != 1) {
           setState(() {
-            drawboardOffset += event.delta;
+            drawboardOffset += event.delta / drawboardScale;
           });
         }
       },
@@ -167,7 +184,6 @@ class _DrawboardState extends State<Drawboard> {
         child: GestureDetector(
           onPanStart: onPanStart,
           onPanUpdate: onPanUpdate,
-          onPanCancel: onPanCancel,
           onPanEnd: onPanEnd,
           child: RepaintBoundary(
             key: globalWidgetKey,
@@ -183,35 +199,36 @@ class _DrawboardState extends State<Drawboard> {
                       child: CustomPaint(
                           painter: StrokePainter(shapes: drawboardSketches)),
                     ),
+                    drawboardScaleText(),
                     const ControlWidget(),
-                    Row(
-                      children: [
-                        TextButton(
-                          onPressed: ProjectSaver.instance.capturePng,
-                          child: Text('Capture Image',
-                              style: TextStyle(color: Colors.grey[900])),
-                        ),
-                        TextButton(
-                          onPressed: ProjectSaver.instance.saveFile,
-                          child: Text(
-                            'Save file',
-                            style: TextStyle(color: Colors.grey[900]),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: ProjectSaver.instance.loadFile,
-                          child: Text(
-                            'Load file',
-                            style: TextStyle(color: Colors.grey[900]),
-                          ),
-                        ),
-                      ],
-                    )
+                    const TopBar(),
                   ],
                 )),
           ),
         ),
       ),
+    );
+  }
+
+  Widget drawboardScaleText() {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Align(
+          alignment: Alignment.topCenter,
+          child: AnimatedOpacity(
+            duration: const Duration(milliseconds: 300),
+            opacity: showDrawboardScaleText ? 1 : 0,
+            child: Container(
+              decoration: BoxDecoration(
+                  color: currentTheme.secondaryBackgroundColor,
+                  borderRadius: BorderRadius.circular(5)),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text((drawboardScale * 100).round().toString(),
+                    style: standartTextStyle),
+              ),
+            ),
+          )),
     );
   }
 }

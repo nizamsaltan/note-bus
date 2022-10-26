@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:note_bus/design/color_palette.dart';
+import 'package:note_bus/utils/color_palette.dart';
 import 'package:note_bus/widgets/drawboard_widget.dart';
 import 'package:note_bus/main.dart';
 import 'package:note_bus/models/enums.dart';

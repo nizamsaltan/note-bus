@@ -23,6 +23,7 @@ class ProjectSaver {
   static Event onProjectSaved = Event();
 
   void capturePng() async {
+    log('sdfsdfsdf');
     try {
       log('inside');
       RenderRepaintBoundary? boundary = globalWidgetKey.currentContext!
@@ -45,6 +46,7 @@ class ProjectSaver {
   }
 
   void saveFile() {
+    log('message');
     for (var element in drawboardSketches) {
       element.initializePoints();
     }
@@ -65,6 +67,7 @@ class ProjectSaver {
   }
 
   void loadFile() {
+    log('messageasdasdasd');
     _openFilePicker().then((value) {
       if (value != null) {
         // Clear drawboard before loading new one

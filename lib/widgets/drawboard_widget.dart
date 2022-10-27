@@ -3,6 +3,9 @@ import 'dart:developer';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:note_bus/models/arrow_model.dart';
+import 'package:note_bus/models/square_model.dart';
 import 'package:note_bus/tools/freesketch.dart';
 import 'package:note_bus/main.dart';
 import 'package:note_bus/models/enums.dart';
@@ -23,6 +26,8 @@ class Drawboard extends StatefulWidget {
 }
 
 List<HandSketch> drawboardSketches = [];
+List<ArrowSketch> drawboardArrows = [];
+List<SquareSketch> drawboardSquares = [];
 Offset drawboardOffset = const Offset(0, 0);
 double drawboardScale = 1;
 
@@ -31,6 +36,8 @@ final GlobalKey globalWidgetKey = GlobalKey();
 class _DrawboardState extends State<Drawboard> {
   // Variables
   late HandSketch currentSketch;
+  late ArrowSketch currentArrow;
+  late SquareSketch currentSquare;
   bool isControllKeyPressing = false;
   bool showDrawboardScaleText = false;
 
@@ -44,22 +51,34 @@ class _DrawboardState extends State<Drawboard> {
 
   void onPanStart(DragStartDetails details) {
     List<Point> x = [];
+    x.add(
+      Point(details.globalPosition.dx / drawboardScale - drawboardOffset.dx,
+          details.globalPosition.dy / drawboardScale - drawboardOffset.dy, 2),
+    );
     switch (currentMode) {
       case EditMode.pen:
-        x.add(Point(
-            details.globalPosition.dx / drawboardScale - drawboardOffset.dx,
-            details.globalPosition.dy / drawboardScale - drawboardOffset.dy,
-            2));
+        currentSketch =
+            HandSketch(x, currentTheme.currentPenColor, touchPressure);
+        drawboardSketches.add(currentSketch);
         break;
       case EditMode.erase:
         break;
-      default:
-    }
-
-    if (currentMode != EditMode.erase) {
-      currentSketch =
-          HandSketch(x, currentTheme.currentPenColor, touchPressure);
-      drawboardSketches.add(currentSketch);
+      case EditMode.arrow:
+        Offset offset = Offset(x.first.x, x.first.y);
+        currentArrow = ArrowSketch(
+            offset, offset, currentTheme.currentPenColor, touchPressure);
+        drawboardArrows.add(currentArrow);
+        break;
+      case EditMode.square:
+        Offset offset = Offset(x.first.x, x.first.y);
+        currentSquare = SquareSketch(
+            offset,
+            offset,
+            currentTheme.currentPenColor,
+            touchPressure,
+            false); // TODO: Fix here
+        drawboardSquares.add(currentSquare);
+        break;
     }
   }
 
@@ -73,13 +92,29 @@ class _DrawboardState extends State<Drawboard> {
       case EditMode.erase:
         ereasePointSketch(dx, dy);
         break;
-      default:
-        addPointToCurrentSketch(dx, dy);
+
+      case EditMode.arrow:
+        updateCurrentArrowToOffset(dx, dy);
+        break;
+      case EditMode.square:
+        updateCurrentSquareEndOffset(dx, dy);
+        break;
     }
   }
 
   void onPanEnd(DragEndDetails details) {
-    detectDeletedShapes();
+    switch (currentMode) {
+      case EditMode.pen:
+        break;
+      case EditMode.erase:
+        detectDeletedShapes();
+        setEditMode(EditMode.pen);
+        break;
+      case EditMode.arrow:
+        break;
+      case EditMode.square:
+        break;
+    }
   }
 
   // ** Methods **
@@ -94,18 +129,39 @@ class _DrawboardState extends State<Drawboard> {
     });
   }
 
+  Offset getTouchOffset(double dx, double dy) {
+    Offset touchOffset = Offset(
+      dx / drawboardScale - drawboardOffset.dx,
+      dy / drawboardScale - drawboardOffset.dy,
+    );
+
+    return touchOffset;
+  }
+
   void addPointToCurrentSketch(double dx, double dy) {
-    Offset touchOffset = Offset(dx / drawboardScale - drawboardOffset.dx,
-        dy / drawboardScale - drawboardOffset.dy);
+    Offset touchOffset = getTouchOffset(dx, dy);
     setState(() {
       currentSketch.points
           .add(Point(touchOffset.dx, touchOffset.dy, touchPressure));
     });
   }
 
+  void updateCurrentArrowToOffset(double dx, double dy) {
+    Offset touchOffset = getTouchOffset(dx, dy);
+    setState(() {
+      currentArrow.to = touchOffset;
+    });
+  }
+
+  void updateCurrentSquareEndOffset(double dx, double dy) {
+    Offset touchOffset = getTouchOffset(dx, dy);
+    setState(() {
+      currentSquare.end = touchOffset;
+    });
+  }
+
   void ereasePointSketch(double dx, double dy) {
-    Offset touchOffset = Offset(dx / drawboardScale - drawboardOffset.dx,
-        dy / drawboardScale - drawboardOffset.dy);
+    Offset touchOffset = getTouchOffset(dx, dy);
     for (var i = 0; i < drawboardSketches.length; i++) {
       Path path = setPath(drawboardSketches[i].points, 15)!;
       if (path.contains(touchOffset)) {
@@ -179,6 +235,18 @@ class _DrawboardState extends State<Drawboard> {
         onKey: (value) {
           setState(() {
             isControllKeyPressing = value.isControlPressed;
+            if (value.logicalKey == LogicalKeyboardKey.keyE) {
+              setEditMode(EditMode.erase);
+            }
+            if (value.logicalKey == LogicalKeyboardKey.keyP) {
+              setEditMode(EditMode.pen);
+            }
+            if (value.logicalKey == LogicalKeyboardKey.keyA) {
+              setEditMode(EditMode.arrow);
+            }
+            if (value.logicalKey == LogicalKeyboardKey.keyS) {
+              setEditMode(EditMode.square);
+            }
           });
         },
         child: GestureDetector(
@@ -197,7 +265,11 @@ class _DrawboardState extends State<Drawboard> {
                           drawboardOffset.dx, drawboardOffset.dy, 0))
                         ..scale(drawboardScale),
                       child: CustomPaint(
-                          painter: StrokePainter(shapes: drawboardSketches)),
+                        painter: StrokePainter(
+                            handSketches: drawboardSketches,
+                            arrowSketches: drawboardArrows,
+                            squareSketches: drawboardSquares),
+                      ),
                     ),
                     drawboardScaleText(),
                     const ControlWidget(),

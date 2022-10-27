@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:note_bus/main.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vector_math/vector_math_64.dart' as vector;
 
 import '../tools/save_project.dart';
@@ -21,7 +22,7 @@ class _TopBarState extends State<TopBar> {
     // Add color for debug
     // ignore: sized_box_for_whitespace
     return Container(
-      width: 150,
+      width: 200,
       child: MouseRegion(
         onExit: (event) {
           setState(() {
@@ -34,20 +35,33 @@ class _TopBarState extends State<TopBar> {
             Row(children: [
               topBarButton('File', () => null, [
                 PanelButton(
-                  text: 'Save File',
+                  text: 'Save file',
                   onPressed: () => ProjectSaver.instance.saveFile(),
                 ),
                 PanelButton(
-                  text: 'Load File',
+                  text: 'Load file',
                   onPressed: () => ProjectSaver.instance.loadFile(),
                 ),
                 PanelButton(
-                  text: 'Capture Image',
+                  text: 'Capture image',
                   onPressed: () => ProjectSaver.instance.capturePng(),
                 ),
               ]),
-              topBarButton(
-                  'Edit', () => null, [Text('data', style: lowerTextStyle)]),
+              topBarButton('Edit', () => null,
+                  [PanelButton(text: 'Edit Shortcuts', onPressed: () {})]),
+              topBarButton('Help', () => null, [
+                PanelButton(
+                    text: 'Github 🧡',
+                    onPressed: () => openURL('https://github.com/nizamsaltan')),
+                PanelButton(
+                    text: 'Source code',
+                    onPressed: () =>
+                        openURL('https://github.com/nizamsaltan/note-bus')),
+                PanelButton(
+                    text: 'Ask for feature',
+                    onPressed: () => openURL(
+                        'mailto:nizamsaltan@protonmail.com?subject=I want new feature for NoteBus!'))
+              ])
             ]),
             const SizedBox(height: 5),
             panel()
@@ -94,7 +108,7 @@ class _TopBarState extends State<TopBar> {
   Widget panel() {
     return Container(
       transform: Matrix4.translation(
-        vector.Vector3(_containerOffset.dx, 0, 0),
+        vector.Vector3(_containerOffset.dx + 5, 0, 0),
       ),
       decoration: BoxDecoration(
         color: currentTheme.secondaryBackgroundColor,
@@ -134,13 +148,12 @@ class _PanelButtonState extends State<PanelButton> {
         child: InkWell(
           onHover: (value) => setState(() => isHover = value),
           onTap: widget.onPressed,
-          child: AnimatedContainer(
+          child: Container(
             decoration: BoxDecoration(
                 color: isHover
                     ? const Color.fromARGB(255, 160, 160, 160)
                     : const Color.fromARGB(255, 175, 175, 175),
                 borderRadius: BorderRadius.circular(5)),
-            duration: const Duration(milliseconds: 200),
             child: Align(
                 alignment: Alignment.centerLeft,
                 child: Padding(
@@ -151,5 +164,12 @@ class _PanelButtonState extends State<PanelButton> {
         ),
       ),
     );
+  }
+}
+
+Future<void> openURL(String url) async {
+  Uri uri = Uri.parse(url);
+  if (!await launchUrl(uri)) {
+    throw 'Could not launch $uri';
   }
 }

@@ -1,5 +1,7 @@
 // ignore_for_file: must_be_immutable
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:note_bus/utils/color_palette.dart';
@@ -94,16 +96,21 @@ class ControlWidgetButton extends StatelessWidget {
     required this.onPressed,
   });
 
+  FocusNode focusNode = FocusNode();
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 3),
-        child: TextButton(
-            onPressed: onPressed,
-            child: Container(
-                color: Colors.transparent,
-                padding: const EdgeInsets.symmetric(vertical: 7),
-                child: child)));
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: InkWell(
+          focusNode: focusNode,
+          onTap: onPressed,
+          onHover: (value) {
+            log('message');
+            focusNode.requestFocus();
+          },
+          child: child,
+        ));
   }
 }
 

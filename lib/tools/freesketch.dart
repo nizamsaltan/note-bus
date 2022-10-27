@@ -1,23 +1,57 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:note_bus/models/arrow_model.dart';
+import 'package:note_bus/models/square_model.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
 
 import '../models/hand_sketch.dart';
 
 class StrokePainter extends CustomPainter {
-  final List<HandSketch> shapes;
+  final List<HandSketch> handSketches;
+  final List<ArrowSketch> arrowSketches;
+  final List<SquareSketch> squareSketches;
 
-  StrokePainter({required this.shapes});
+  StrokePainter(
+      {required this.handSketches,
+      required this.arrowSketches,
+      required this.squareSketches});
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (var element in shapes) {
-      Paint paintProperty = Paint()
-        ..color = element.color
-        ..strokeJoin = StrokeJoin.round
-        ..strokeCap = StrokeCap.round
-        ..isAntiAlias = true;
+    Paint paintProperty = Paint()
+      ..strokeJoin = StrokeJoin.round
+      ..strokeCap = StrokeCap.round;
+
+    // Hand sketch
+    for (var element in handSketches) {
       Path myPath = setPath(element.points, element.size)!;
-      canvas.drawPath(myPath, paintProperty);
+      canvas.drawPath(
+        myPath,
+        paintProperty..color = element.color,
+      );
+    }
+
+    // Arrows
+    for (var element in arrowSketches) {
+      canvas.drawLine(
+          Offset(element.from.dx, element.from.dy),
+          Offset(element.to.dx, element.to.dy),
+          paintProperty
+            ..color = element.color
+            ..strokeWidth = element.size / 1.5);
+    }
+
+    // Square
+    for (var element in squareSketches) {
+      canvas.drawRect(
+          Rect.fromPoints(
+            Offset(element.start.dx, element.start.dy),
+            Offset(element.end.dx, element.end.dy),
+          ),
+          paintProperty
+            ..style = element.fill ? PaintingStyle.fill : PaintingStyle.stroke
+            ..strokeWidth = element.size / 1.5);
     }
   }
 

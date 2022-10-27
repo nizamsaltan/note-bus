@@ -13,6 +13,7 @@ import 'package:file_saver/file_saver.dart';
 import 'package:flutter/rendering.dart';
 import 'package:note_bus/tools/platform_detector.dart';
 import 'package:note_bus/widgets/drawboard_widget.dart';
+import 'package:note_bus/widgets/top_bar.dart';
 
 import '../models/hand_sketch.dart';
 
@@ -23,30 +24,33 @@ class ProjectSaver {
   static Event onProjectSaved = Event();
 
   void capturePng() async {
-    log('sdfsdfsdf');
     try {
-      log('inside');
+      log('Capturing PNG...');
       RenderRepaintBoundary? boundary = globalWidgetKey.currentContext!
           .findRenderObject() as RenderRepaintBoundary?;
       ui.Image? image = await boundary?.toImage(pixelRatio: 3.0);
       ByteData? byteData =
           await image?.toByteData(format: ui.ImageByteFormat.png);
       var pngBytes = byteData?.buffer.asUint8List();
+      // ignore: unused_local_variable
       var bs64 = base64Encode(pngBytes!);
-      log(pngBytes.toString());
-      log(bs64.toString());
+      //log(pngBytes.toString());
+      //log(bs64.toString());
 
       //var x = Image.memory(base64Decode(bs64));
 
-      await FileSaver.instance
-          .saveFile('NoteBusFile', pngBytes, '.png', mimeType: MimeType.PNG);
+      var path = await FileSaver.instance
+          .saveFile('NoteBusFile', pngBytes, 'png', mimeType: MimeType.PNG);
+
+      log('Capturing PNG Successful');
+      openURL('file:$path');
     } catch (e) {
       log(e.toString());
     }
   }
 
   void saveFile() {
-    log('message');
+    log('Saving File');
     for (var element in drawboardSketches) {
       element.initializePoints();
     }
@@ -61,13 +65,14 @@ class ProjectSaver {
     var bytes = projectData.codeUnits;
     var uintList = Uint8List.fromList(bytes);
 
-    FileSaver.instance.saveFile('Note Bus Project', uintList, 'ntbs');
+    FileSaver.instance.saveFile('Note Bus Project', uintList, 'notbs');
 
     onProjectSaved.broadcast();
+    log('Saving File Successful');
   }
 
   void loadFile() {
-    log('messageasdasdasd');
+    log('Loading File');
     _openFilePicker().then((value) {
       if (value != null) {
         // Clear drawboard before loading new one
@@ -75,6 +80,7 @@ class ProjectSaver {
 
         drawboardSketches.addAll(value);
         onProjectLoaded.broadcast();
+        log('Loading File Successful');
       } else {
         log('User not select any file');
       }

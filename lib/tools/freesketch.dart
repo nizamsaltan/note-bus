@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:note_bus/models/arrow_model.dart';
 import 'package:note_bus/models/square_model.dart';

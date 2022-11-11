@@ -108,7 +108,6 @@ class _DrawboardState extends State<Drawboard> {
         break;
       case EditMode.erase:
         detectDeletedShapes();
-        setEditMode(EditMode.pen);
         break;
       case EditMode.arrow:
         break;

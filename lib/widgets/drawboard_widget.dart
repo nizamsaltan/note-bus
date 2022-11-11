@@ -27,7 +27,11 @@ class Drawboard extends StatefulWidget {
 
 List<HandSketch> drawboardSketches = [];
 List<ArrowSketch> drawboardArrows = [];
-List<SquareSketch> drawboardSquares = [];
+List<SquareSketch> drawboardSquares = [
+  const SquareSketch(offset: Offset(70, 100), text: 'text1'),
+  const SquareSketch(offset: Offset(200, 100), text: 'text2'),
+  const SquareSketch(offset: Offset(200, 230), text: 'text3'),
+];
 Offset drawboardOffset = const Offset(0, 0);
 double drawboardScale = 1;
 
@@ -70,14 +74,14 @@ class _DrawboardState extends State<Drawboard> {
         drawboardArrows.add(currentArrow);
         break;
       case EditMode.square:
-        Offset offset = Offset(x.first.x, x.first.y);
-        currentSquare = SquareSketch(
-            offset,
-            offset,
-            currentTheme.currentPenColor,
-            touchPressure,
-            false); // TODO: Fix here
-        drawboardSquares.add(currentSquare);
+        // Offset offset = Offset(x.first.x, x.first.y);
+        // currentSquare = SquareSketch(
+        //     offset,
+        //     offset,
+        //     currentTheme.currentPenColor,
+        //     touchPressure,
+        //     false); // TODO: Fix here
+        // drawboardSquares.add(currentSquare);
         break;
     }
   }
@@ -155,7 +159,7 @@ class _DrawboardState extends State<Drawboard> {
   void updateCurrentSquareEndOffset(double dx, double dy) {
     Offset touchOffset = getTouchOffset(dx, dy);
     setState(() {
-      currentSquare.end = touchOffset;
+      //currentSquare.end = touchOffset;
     });
   }
 
@@ -259,17 +263,19 @@ class _DrawboardState extends State<Drawboard> {
                 body: Stack(
                   children: [
                     Transform(
-                      origin: -drawboardOffset,
-                      transform: Matrix4.translation(vector.Vector3(
-                          drawboardOffset.dx, drawboardOffset.dy, 0))
-                        ..scale(drawboardScale),
-                      child: CustomPaint(
-                        painter: StrokePainter(
-                            handSketches: drawboardSketches,
-                            arrowSketches: drawboardArrows,
-                            squareSketches: drawboardSquares),
-                      ),
-                    ),
+                        origin: -drawboardOffset,
+                        transform: Matrix4.translation(vector.Vector3(
+                            drawboardOffset.dx, drawboardOffset.dy, 0))
+                          ..scale(drawboardScale),
+                        child: Stack(children: [
+                          CustomPaint(
+                            painter: StrokePainter(
+                              handSketches: drawboardSketches,
+                              arrowSketches: drawboardArrows,
+                            ),
+                          ),
+                          ...drawboardSquares,
+                        ])),
                     drawboardScaleText(),
                     const ControlWidget(),
                     const TopBar(),

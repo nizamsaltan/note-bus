@@ -1,13 +1,52 @@
-import 'package:flutter/widgets.dart';
+import 'dart:developer';
 
-class SquareSketch {
-  Offset start;
-  Offset end;
-  Color color;
-  double size;
-  bool fill;
+import 'package:flutter/material.dart';
 
-  bool isDeleted = false;
+class SquareSketch extends StatelessWidget {
+  const SquareSketch({
+    super.key,
+    required this.offset,
+    required this.text,
+  });
 
-  SquareSketch(this.start, this.end, this.color, this.size, this.fill);
+  final double size = 100;
+  final Offset offset;
+  final String text;
+
+  void onStart(DragStartDetails details) {
+    log(details.toString());
+  }
+
+  void onUpdate(DragUpdateDetails details) {
+    log(details.toString());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.translate(
+      offset: offset,
+      child: GestureDetector(
+        onTap: () {
+          log('message');
+        },
+        onPanStart: onStart,
+        onPanUpdate: onUpdate,
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(
+                color: Colors.grey,
+                width: 1.5,
+              ),
+              borderRadius: BorderRadius.circular(7)),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(text),
+          ),
+        ),
+      ),
+    );
+  }
 }

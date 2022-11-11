@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:note_bus/models/arrow_model.dart';
-import 'package:note_bus/models/square_model.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
 
 import '../models/hand_sketch.dart';
@@ -8,12 +7,7 @@ import '../models/hand_sketch.dart';
 class StrokePainter extends CustomPainter {
   final List<HandSketch> handSketches;
   final List<ArrowSketch> arrowSketches;
-  final List<SquareSketch> squareSketches;
-
-  StrokePainter(
-      {required this.handSketches,
-      required this.arrowSketches,
-      required this.squareSketches});
+  StrokePainter({required this.handSketches, required this.arrowSketches});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -30,6 +24,51 @@ class StrokePainter extends CustomPainter {
       );
     }
 
+    // for (var i = 0; i < 1; i++) {
+    //   var start = const Offset(0, 0);
+    //   var end = const Offset(200, 450);
+    //   var curvature = 1;
+
+    //   List<Point> myPoints = [
+    //     //   Point(start.dx, start.dy),
+    //     //   Point(start.dx - curvature, start.dy - curvature),
+
+    //     //   Point(end.dx - curvature, start.dy - curvature),
+    //     //   Point(end.dx, start.dy),
+    //     //   Point(end.dx - curvature, start.dy - curvature),
+
+    //     //   Point(end.dx - curvature, end.dy - curvature),
+    //     //   Point(end.dx, end.dy),
+    //     //   Point(end.dx - curvature, end.dy - curvature),
+    //     //   Point(end.dx, end.dy),
+
+    //     //   Point(start.dx - curvature, end.dy - curvature),
+    //     //   Point(start.dx, end.dy),
+    //     //   Point(start.dx - curvature, end.dy - curvature),
+
+    //     //   Point(start.dx - curvature, start.dy - curvature),
+    //     //   Point(start.dx, start.dy),
+    //     //   Point(start.dx + curvature, start.dy + curvature),
+
+    //     const Point(0, 0),
+    //     const Point(0, 199),
+    //     const Point(0, 200),
+    //     const Point(0, 201),
+    //     const Point(199, 199),
+    //     const Point(200, 200),
+    //     const Point(199, 199),
+    //     const Point(199, 0),
+    //     const Point(200, 0),
+    //     const Point(200, 0),
+
+    //     // etc...
+    //   ];
+
+    //   Path path = setPath(myPoints, 5, simulatePressure: false, smoothing: 0)!;
+
+    //   canvas.drawPath(path, paintProperty..color = Colors.black);
+    // }
+
     // Arrows
     for (var element in arrowSketches) {
       canvas.drawLine(
@@ -39,7 +78,7 @@ class StrokePainter extends CustomPainter {
             ..color = element.color
             ..strokeWidth = element.size / 1.5);
     }
-
+/*
     // Square
     for (var element in squareSketches) {
       canvas.drawRect(
@@ -51,6 +90,7 @@ class StrokePainter extends CustomPainter {
             ..style = element.fill ? PaintingStyle.fill : PaintingStyle.stroke
             ..strokeWidth = element.size / 1.5);
     }
+  */
   }
 
   @override
@@ -59,12 +99,15 @@ class StrokePainter extends CustomPainter {
   }
 }
 
-Path? setPath(List<Point> points, double size) {
+Path? setPath(List<Point> points, double size,
+    {bool simulatePressure = true, double smoothing = .5}) {
   // 1. Get the outline points from the input points
   final outlinePoints = getStroke(
     points,
     thinning: .5,
     size: size,
+    simulatePressure: simulatePressure,
+    smoothing: smoothing,
   );
 
   // 2. Render the points as a path

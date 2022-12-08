@@ -1,16 +1,37 @@
-# note_bus
+# Note Bus
+Note Bus is an open source note taking app that aims easy to use with stylus pens or graphic tablets
 
-A new Flutter project.
+<br>
 
-## Getting Started
+![Hello](https://raw.githubusercontent.com/nizamsaltan/note-bus/main/markdown_resources/ezgif.com-gif-maker.gif "Hello")
 
-This project is a starting point for a Flutter application.
+## Features
+- Smooth writing experience (with [perfect-freehand](https://github.com/steveruizok/perfect-freehand "Perfect Freehand") plugin)
+- Arrows (connects nodes)
+- Squares (for litte notes or visual)
 
-A few resources to get you started if this is your first Flutter project:
+## Known issues
+- Cant erase arrows
+- Cant erase squares
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Roadmap
+1. Issues
+2. Moving and editing squares
+3. Adding more shapes
+4. More color option with better UX/UI
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Development & Contributions
+To work on this library:
+
+- clone this repo
+- run `flutter pub get` in the folder root to install dependencies
+- run `flutter run` to run a flutter program
+
+Pull requests are very welcome!
+
+## License
+
+This project is licensed under MIT, not allowed in redistributed commercial product
+
+## Questions
+- You can use [issues page](!https://github.com/nizamsaltan/note-bus/issues) to start question or contact me via nizamsaltan@protonmail.com | [nizamsaltan.com](http://nizamsaltan.com "nizamsaltan.com")

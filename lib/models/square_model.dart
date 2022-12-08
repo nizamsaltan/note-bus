@@ -1,39 +1,56 @@
-import 'dart:developer';
+// ignore_for_file: must_be_immutable
 
+import 'package:event/event.dart';
 import 'package:flutter/material.dart';
+import 'package:note_bus/widgets/drawboard_widget.dart';
 
-class SquareSketch extends StatelessWidget {
-  const SquareSketch({
+class SquareWidget extends StatefulWidget {
+  SquareWidget({
     super.key,
-    required this.offset,
+    required this.startPos,
+    required this.endPos,
     required this.text,
   });
 
-  final double size = 100;
-  final Offset offset;
-  final String text;
-
-  void onStart(DragStartDetails details) {
-    log(details.toString());
+  void updateSquareValues(Offset startPos, Offset endPos) {
+    this.startPos = startPos;
+    this.endPos = endPos;
+    updateSquareValuesEvent.broadcast();
   }
 
-  void onUpdate(DragUpdateDetails details) {
-    log(details.toString());
+  Event updateSquareValuesEvent = Event();
+
+  Offset startPos;
+  Offset endPos;
+  final String text;
+
+  @override
+  State<SquareWidget> createState() => _SquareWidgetState();
+}
+
+class _SquareWidgetState extends State<SquareWidget> {
+  @override
+  void initState() {
+    widget.updateSquareValuesEvent.subscribe((args) {
+      update();
+    });
+    super.initState();
+  }
+
+  void update() {
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return Transform.translate(
-      offset: offset,
-      child: GestureDetector(
-        onTap: () {
-          log('message');
-        },
-        onPanStart: onStart,
-        onPanUpdate: onUpdate,
-        child: Container(
-          width: size,
-          height: size,
+    return Transform(
+      origin: -drawboardOffset,
+      transform: drawboardTransform,
+      child: Container(
+          transform: Matrix4.translationValues(
+              widget.startPos.dx, widget.startPos.dy, 0),
+          width: (widget.startPos.dx - widget.endPos.dx).abs(),
+          height: (widget.startPos.dy - widget.endPos.dy).abs(),
           decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(
@@ -41,12 +58,7 @@ class SquareSketch extends StatelessWidget {
                 width: 1.5,
               ),
               borderRadius: BorderRadius.circular(7)),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(text),
-          ),
-        ),
-      ),
+          child: Text(widget.text)),
     );
   }
 }

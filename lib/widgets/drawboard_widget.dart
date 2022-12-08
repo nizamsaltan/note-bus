@@ -27,21 +27,19 @@ class Drawboard extends StatefulWidget {
 
 List<HandSketch> drawboardSketches = [];
 List<ArrowSketch> drawboardArrows = [];
-List<SquareSketch> drawboardSquares = [
-  const SquareSketch(offset: Offset(70, 100), text: 'text1'),
-  const SquareSketch(offset: Offset(200, 100), text: 'text2'),
-  const SquareSketch(offset: Offset(200, 230), text: 'text3'),
-];
+List<SquareWidget> drawboardSquares = [];
 Offset drawboardOffset = const Offset(0, 0);
 double drawboardScale = 1;
 
 final GlobalKey globalWidgetKey = GlobalKey();
 
+Matrix4 drawboardTransform = Matrix4.zero();
+
 class _DrawboardState extends State<Drawboard> {
   // Variables
   late HandSketch currentSketch;
   late ArrowSketch currentArrow;
-  late SquareSketch currentSquare;
+  late SquareWidget currentSquare;
   bool isControllKeyPressing = false;
   bool showDrawboardScaleText = false;
 
@@ -54,13 +52,13 @@ class _DrawboardState extends State<Drawboard> {
   // ** Callbacks **
 
   void onPanStart(DragStartDetails details) {
-    List<Point> x = [];
-    x.add(
-      Point(details.globalPosition.dx / drawboardScale - drawboardOffset.dx,
-          details.globalPosition.dy / drawboardScale - drawboardOffset.dy, 2),
-    );
+    Offset touchOffset =
+        getTouchOffset(details.globalPosition.dx, details.globalPosition.dy);
     switch (currentMode) {
       case EditMode.pen:
+        List<Point> x = [];
+        x.add(Point(touchOffset.dx, touchOffset.dy, 2));
+
         currentSketch =
             HandSketch(x, currentTheme.currentPenColor, touchPressure);
         drawboardSketches.add(currentSketch);
@@ -68,20 +66,17 @@ class _DrawboardState extends State<Drawboard> {
       case EditMode.erase:
         break;
       case EditMode.arrow:
-        Offset offset = Offset(x.first.x, x.first.y);
-        currentArrow = ArrowSketch(
-            offset, offset, currentTheme.currentPenColor, touchPressure);
+        currentArrow = ArrowSketch(touchOffset, touchOffset,
+            currentTheme.currentPenColor, touchPressure);
         drawboardArrows.add(currentArrow);
         break;
       case EditMode.square:
-        // Offset offset = Offset(x.first.x, x.first.y);
-        // currentSquare = SquareSketch(
-        //     offset,
-        //     offset,
-        //     currentTheme.currentPenColor,
-        //     touchPressure,
-        //     false); // TODO: Fix here
-        // drawboardSquares.add(currentSquare);
+        currentSquare = SquareWidget(
+          startPos: touchOffset,
+          endPos: touchOffset,
+          text: 'ASD',
+        );
+        drawboardSquares.add(currentSquare);
         break;
     }
   }
@@ -122,6 +117,16 @@ class _DrawboardState extends State<Drawboard> {
 
   // ** Methods **
 
+  void checkDrawboardTransform() {
+    drawboardTransform = Matrix4.translation(
+        vector.Vector3(drawboardOffset.dx, drawboardOffset.dy, 0))
+      ..scale(drawboardScale);
+
+    for (var element in drawboardSquares) {
+      element.updateSquareValuesEvent.broadcast();
+    }
+  }
+
   void detectDeletedShapes() {
     setState(() {
       for (var element in List<HandSketch>.from(drawboardSketches)) {
@@ -159,7 +164,7 @@ class _DrawboardState extends State<Drawboard> {
   void updateCurrentSquareEndOffset(double dx, double dy) {
     Offset touchOffset = getTouchOffset(dx, dy);
     setState(() {
-      //currentSquare.end = touchOffset;
+      currentSquare.updateSquareValues(currentSquare.startPos, touchOffset);
     });
   }
 
@@ -220,6 +225,8 @@ class _DrawboardState extends State<Drawboard> {
           } else if (event.scrollDelta.dy < 0) {
             scaleDrawboard(.1);
           }
+
+          checkDrawboardTransform();
         }
       },
       onPointerDown: (event) {
@@ -230,6 +237,8 @@ class _DrawboardState extends State<Drawboard> {
           setState(() {
             drawboardOffset += event.delta / drawboardScale;
           });
+
+          checkDrawboardTransform();
         }
       },
       child: RawKeyboardListener(
@@ -252,21 +261,20 @@ class _DrawboardState extends State<Drawboard> {
             }
           });
         },
-        child: GestureDetector(
-          onPanStart: onPanStart,
-          onPanUpdate: onPanUpdate,
-          onPanEnd: onPanEnd,
-          child: RepaintBoundary(
-            key: globalWidgetKey,
+        child: RepaintBoundary(
+          key: globalWidgetKey,
+          child: GestureDetector(
+            onPanStart: onPanStart,
+            onPanUpdate: onPanUpdate,
+            onPanEnd: onPanEnd,
             child: Scaffold(
                 backgroundColor: currentTheme.backgroundColor,
                 body: Stack(
                   children: [
+                    ...drawboardSquares,
                     Transform(
                         origin: -drawboardOffset,
-                        transform: Matrix4.translation(vector.Vector3(
-                            drawboardOffset.dx, drawboardOffset.dy, 0))
-                          ..scale(drawboardScale),
+                        transform: drawboardTransform,
                         child: Stack(children: [
                           CustomPaint(
                             painter: StrokePainter(
@@ -274,7 +282,6 @@ class _DrawboardState extends State<Drawboard> {
                               arrowSketches: drawboardArrows,
                             ),
                           ),
-                          ...drawboardSquares,
                         ])),
                     drawboardScaleText(),
                     const ControlWidget(),

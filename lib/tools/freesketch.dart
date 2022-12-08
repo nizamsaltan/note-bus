@@ -24,51 +24,6 @@ class StrokePainter extends CustomPainter {
       );
     }
 
-    // for (var i = 0; i < 1; i++) {
-    //   var start = const Offset(0, 0);
-    //   var end = const Offset(200, 450);
-    //   var curvature = 1;
-
-    //   List<Point> myPoints = [
-    //     //   Point(start.dx, start.dy),
-    //     //   Point(start.dx - curvature, start.dy - curvature),
-
-    //     //   Point(end.dx - curvature, start.dy - curvature),
-    //     //   Point(end.dx, start.dy),
-    //     //   Point(end.dx - curvature, start.dy - curvature),
-
-    //     //   Point(end.dx - curvature, end.dy - curvature),
-    //     //   Point(end.dx, end.dy),
-    //     //   Point(end.dx - curvature, end.dy - curvature),
-    //     //   Point(end.dx, end.dy),
-
-    //     //   Point(start.dx - curvature, end.dy - curvature),
-    //     //   Point(start.dx, end.dy),
-    //     //   Point(start.dx - curvature, end.dy - curvature),
-
-    //     //   Point(start.dx - curvature, start.dy - curvature),
-    //     //   Point(start.dx, start.dy),
-    //     //   Point(start.dx + curvature, start.dy + curvature),
-
-    //     const Point(0, 0),
-    //     const Point(0, 199),
-    //     const Point(0, 200),
-    //     const Point(0, 201),
-    //     const Point(199, 199),
-    //     const Point(200, 200),
-    //     const Point(199, 199),
-    //     const Point(199, 0),
-    //     const Point(200, 0),
-    //     const Point(200, 0),
-
-    //     // etc...
-    //   ];
-
-    //   Path path = setPath(myPoints, 5, simulatePressure: false, smoothing: 0)!;
-
-    //   canvas.drawPath(path, paintProperty..color = Colors.black);
-    // }
-
     // Arrows
     for (var element in arrowSketches) {
       canvas.drawLine(

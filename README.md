@@ -34,4 +34,6 @@ Pull requests are very welcome!
 This project is licensed under MIT, not allowed in redistributed commercial product
 
 ## Questions
-- You can use [issues page](!https://github.com/nizamsaltan/note-bus/issues) to ask question, feature and bug or contact me via nizamsaltan@protonmail.com | [nizamsaltan.com](http://nizamsaltan.com "nizamsaltan.com")
+- You can use [issues page](https://github.com/nizamsaltan/note-bus/issues) for bugs
+- You can use [discussion page](https://github.com/nizamsaltan/note-bus/discussions) for asking new feature or just for starting a new discussion!
+- If you prefer, you can contact me directly via nizamsaltan@protonmail.com | [nizamsaltan.com](http://nizamsaltan.com "nizamsaltan.com")

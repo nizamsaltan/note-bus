@@ -23,9 +23,9 @@ Note Bus is an open source note taking app that aims easy to use with stylus pen
 ## Development & Contributions
 To work on this library:
 
-- clone this repo
-- run `flutter pub get` in the folder root to install dependencies
-- run `flutter run` to run a flutter program
+- Clone this repo in main branch
+- Run `flutter pub get` in the folder root to install dependencies
+- Run `flutter run` to run as flutter program
 
 Pull requests are very welcome!
 

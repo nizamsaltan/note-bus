@@ -1,4 +1,5 @@
 enum EditMode {
+  selection,
   pen,
   erase,
   arrow,

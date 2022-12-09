@@ -1,7 +1,9 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:event/event.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:note_bus/main.dart';
 import 'package:note_bus/widgets/drawboard_widget.dart';
 
 class SquareWidget extends StatefulWidget {
@@ -29,6 +31,8 @@ class SquareWidget extends StatefulWidget {
 }
 
 class _SquareWidgetState extends State<SquareWidget> {
+  bool isMouseEnter = false;
+
   @override
   void initState() {
     widget.updateSquareValuesEvent.subscribe((args) {
@@ -41,24 +45,44 @@ class _SquareWidgetState extends State<SquareWidget> {
     setState(() {});
   }
 
+  void onMouseEnter(PointerEnterEvent event) {
+    setState(() {
+      isMouseEnter = true;
+    });
+  }
+
+  void onMouseExit(PointerExitEvent event) {
+    setState(() {
+      isMouseEnter = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Transform(
       origin: -drawboardOffset,
       transform: drawboardTransform,
-      child: Container(
-          transform: Matrix4.translationValues(
-              widget.startPos.dx, widget.startPos.dy, 0),
-          width: (widget.startPos.dx - widget.endPos.dx).abs(),
-          height: (widget.startPos.dy - widget.endPos.dy).abs(),
-          decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(
-                color: Colors.grey,
-                width: 1.5,
-              ),
-              borderRadius: BorderRadius.circular(7)),
-          child: Text(widget.text)),
+      child: Transform(
+        transform: Matrix4.translationValues(
+            widget.startPos.dx, widget.startPos.dy, 0),
+        child: MouseRegion(
+          onEnter: onMouseEnter,
+          onExit: onMouseExit,
+          child: AnimatedContainer(
+              duration: const Duration(milliseconds: 100),
+              width: (widget.startPos.dx - widget.endPos.dx).abs(),
+              height: (widget.startPos.dy - widget.endPos.dy).abs(),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(
+                    color: currentTheme.highlightColor.withOpacity(.5),
+                    width: isMouseEnter ? 1.25 : 0.01,
+                  ),
+                  borderRadius: BorderRadius.circular(7)),
+              child: Text(widget.text)),
+        ),
+      ),
     );
   }
 }

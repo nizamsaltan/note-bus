@@ -55,6 +55,9 @@ class _DrawboardState extends State<Drawboard> {
     Offset touchOffset =
         getTouchOffset(details.globalPosition.dx, details.globalPosition.dy);
     switch (currentMode) {
+      case EditMode.selection:
+        // TODO: Handle this case.
+        break;
       case EditMode.pen:
         List<Point> x = [];
         x.add(Point(touchOffset.dx, touchOffset.dy, 2));
@@ -85,6 +88,8 @@ class _DrawboardState extends State<Drawboard> {
     double dx = details.globalPosition.dx;
     double dy = details.globalPosition.dy;
     switch (currentMode) {
+      case EditMode.selection:
+      // TODO: Handle this case.
       case EditMode.pen:
         addPointToCurrentSketch(dx, dy);
         break;
@@ -103,6 +108,9 @@ class _DrawboardState extends State<Drawboard> {
 
   void onPanEnd(DragEndDetails details) {
     switch (currentMode) {
+      case EditMode.selection:
+        // TODO: Handle this case.
+        break;
       case EditMode.pen:
         break;
       case EditMode.erase:
